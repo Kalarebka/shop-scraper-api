@@ -1,0 +1,73 @@
+- scraper scraping shops (>= 3) for a product (maybe choose some category 
+of products? e.g. a book price scraping app)
+- api for the scraper
+- save scraped data in MongoDB
+- docker-compose
+
+
+Packages:
+- motor (async ORM for mongo) 
+- fastapi
+- scrapy 
+- requests
+- make mongo id work with fastapi/pydantic: https://lightrun.com/answers/tiangolo-fastapi-question-fastapi--mongodb---the-full-guide or ODMantic
+    https://art049.github.io/odmantic/usage_fastapi/
+    https://github.com/art049/odmantic
+
+Overview:
+- API that takes a query --> if there are cached results for that query 
+in mongo (from recent time, 24h?) --> return the cached results, 
+otherwise
+use scraper and save the results to mongo
+-
+
+
+API endpoints:
+- GET /product + query parameter with name query - search results from 
+all the shops for one product
+    optional: how many results, one shop or all shops, literal result (only
+    result that match query exactly/all words from q are in name) or all search results, sorting by,
+    available_only=True
+- GET /history + query parameter (optional parameter: shop) - get history 
+of all prices for a product (optionally from chosen shop)
+- POST (?) /scrape-product?query - do the scraping without searching for 
+    cached results and save to db
+
+- POST /batch-scrape-products/ (list of queries)
+
+- DELETE /delete/ - admin only; delete all records for a query from a database
+    opt. date - delete records from this date
+
+
+- parameter to show only available products
+
+
+Scraper:
+- get name of the product, url of product, price, availability, EAN? (are 
+EANs available on shop websites? or ISBN for books)
+
+Models:
+- Shop (name: str, url: str, info which scraper function to use?)
+- Product (name/query: str, ean (optional), isbn(optional), 
+offers: list[Offer])
+- Offer (date: datetime, shop: shop id, price: (is float enough? it's 
+just for comparison not for banking; or int in gr); shipping price 
+(for item or for shop?), exact=True (matches query exactly/all words from q are in name)
+
+Difficult stuff/reading:
+- make mongo/bson object id work in fastapi
+- does it make sense to use query as identifier?
+- nested models in motor (list of Offers in Product)
+- should the scraper be separate from the app and how much separate 
+(file in /app vs. separate python module)
+- scrapy
+
+Stages:
+- TDD
+- set up base (fastapi + mongo + docker-compose)
+- choose shops to scrape (and if they can be scraped)
+- program the scraping part (1. get data from webpages; 2. extract 
+relevant parts --> models; 3. save models to mongo)
+- add endpoints for api
+-
+

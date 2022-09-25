@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  mongo_db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    container_name: mongo_db
+    env_file:
+      - .env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+    volumes:
+      - mongo:/data/db
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mongo_app
+    volumes:
+      - ./app:/app
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
+    environment:
+      - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/${MONGO_DATABASE}
+    depends_on:
+      - mongo_db
+
+volumes:
+  mongo:

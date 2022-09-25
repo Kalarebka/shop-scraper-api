@@ -1,0 +1,6 @@
+Matras:
+url: "https://www.matras.pl/wyszukiwanie?szukaj={query}&l={results_on_page}"
+div class="book" -> div class image -> a class show href=link do tej książki
+
+na stronie książki:
+data-price-current="51.99"
