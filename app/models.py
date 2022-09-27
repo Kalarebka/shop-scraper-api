@@ -19,7 +19,6 @@ class PyObjectId(ObjectId):
         field_schema.update(type="string")
 
 
-
 class Offer(BaseModel):
     _id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     name: str
@@ -36,7 +35,6 @@ class Product(BaseModel):
     _id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     query: str = Field(...)
     offers = List[Offer]
-    
 
     class Config:
         allow_population_by_field_name = True
