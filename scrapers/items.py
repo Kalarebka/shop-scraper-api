@@ -17,3 +17,4 @@ class Offer(scrapy.Item):
     price = scrapy.Field()
     available = scrapy.Field()
     url = scrapy.Field()
+    query = scrapy.Field

@@ -1,26 +1,11 @@
-- scraper scraping shops (>= 3) for a product (maybe choose some category 
-of products? e.g. a book price scraping app)
-- api for the scraper
-- save scraped data in MongoDB
-- docker-compose
-
-
-Packages:
-- motor (async ORM for mongo) 
-- fastapi
-- scrapy 
-- requests
 - make mongo id work with fastapi/pydantic: https://lightrun.com/answers/tiangolo-fastapi-question-fastapi--mongodb---the-full-guide or ODMantic
     https://art049.github.io/odmantic/usage_fastapi/
     https://github.com/art049/odmantic
 
-Overview:
-- API that takes a query --> if there are cached results for that query 
-in mongo (from recent time, 24h?) --> return the cached results, 
-otherwise
-use scraper and save the results to mongo
--
-
+2 options:
+- api only interacts with db (can add queries that are scraped cyclically)
+- OR can scrape live queries unless there are no cached results
+(or both I guess)
 
 API endpoints:
 - GET /product + query parameter with name query - search results from 
@@ -47,7 +32,6 @@ Scraper:
 EANs available on shop websites? or ISBN for books)
 
 Models:
-- Shop (name: str, url: str, info which scraper function to use?)
 - Product (name/query: str, ean (optional), isbn(optional), 
 offers: list[Offer])
 - Offer (date: datetime, shop: shop id, price: (is float enough? it's 

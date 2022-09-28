@@ -27,10 +27,11 @@ class MatrasSpider(scrapy.Spider):
             )
 
     def parse_search(self, response):
-        search_results = response.css("div.book")
+        num_results = int(response.meta['num_results'])
+        search_results = response.css("div.book")[:num_results]
         for result in search_results:
             url = result.css("div.image a.show::attr(href)").get()
-            yield scrapy.Request(url=url, callback=self.parse_result)
+            yield scrapy.Request(url=url, callback=self.parse_result, meta={"query": response.meta['query']})
 
     def parse_result(self, response):
         offer = Offer()
@@ -42,6 +43,8 @@ class MatrasSpider(scrapy.Spider):
         offer["shop"] = "matras.pl"
         offer["price"] = response.css("div.buy-schema::attr(data-price-current)").get()
         offer["url"] = response.request.url
+
+        offer["query"] = response.meta["query"]
 
         isbn_search = response.css("div.colsInfo").re(r"ISBN: ([\d-]+)")
         if isbn_search:

@@ -9,11 +9,5 @@ db.createUser(
     }
 )
 
-
 db.createCollection("queries")
 db.createCollection("offers")
-
-
-// Create entries with shop data
-db.shops.insert([ {} ])
-

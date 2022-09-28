@@ -1,4 +1,5 @@
 import os
+
 # Scrapy settings for scrapers project
 #
 # For simplicity, this file contains only settings considered important or
@@ -64,14 +65,14 @@ ROBOTSTXT_OBEY = False
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'stack.pipelines.MongoDBPipeline',
+    "scrapers.pipelines.MongoDBPipeline": 300,
 }
 
 MONGODB_SERVER = "mongo_db"
 MONGODB_PORT = 27017
-MONGODB_DB = os.environ['MONGO_DATABASE']
+MONGODB_DB = os.environ.get("MONGO_DATABASE")
 MONGODB_COLLECTION = "offers"
-MONGODB_URL = os.environ['MONGODB_URL']
+MONGODB_URL = os.environ.get("MONGODB_URL")
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
