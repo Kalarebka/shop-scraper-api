@@ -9,8 +9,9 @@ db.createUser(
     }
 )
 
-db.createCollection("shops")
-db.createCollection("products")
+
+db.createCollection("queries")
+db.createCollection("offers")
 
 
 // Create entries with shop data

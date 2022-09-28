@@ -1,5 +1,5 @@
-import motor.motor_asyncio
+import pymongo
 import os
 
-client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGODB_URL"])
+client = pymongo.MongoClient(os.environ["MONGODB_URL"])
 db = client["shop_scraper"]

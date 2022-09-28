@@ -21,7 +21,7 @@ class PyObjectId(ObjectId):
 
 class Offer(BaseModel):
     _id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    name: str
+    title: str
     timestamp: datetime = Field(...)
     shop_id: int
     price: float
@@ -31,24 +31,13 @@ class Offer(BaseModel):
     url: str
 
 
-class Product(BaseModel):
+class ProductQuery(BaseModel):
     _id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     query: str = Field(...)
-    offers = List[Offer]
+    num_results: int = Field(...)
 
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
 
-
-class Shop(BaseModel):
-    _id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    name: str = Field(...)
-    type: str = Field(...)
-    scraper: str = Field(...)
-
-    class Config:
-        allow_population_by_field_name = True
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
