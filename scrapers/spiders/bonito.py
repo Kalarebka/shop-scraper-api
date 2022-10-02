@@ -2,23 +2,23 @@ import scrapy
 
 from datetime import datetime
 
-from base_spider import BaseSpider
 from scrapers.items import Offer
 
 
+class BonitoSpider(scrapy.Spider):
+    name = "bonito"
+    allowed_domains = ["bonito.pl"]
+    main_url = ["http://bonito.pl/"]
 
-class MatrasSpider(BaseSpider):
-    name = "matras"
-    allowed_domains = ["matras.pl"]
-    main_url = "http://matras.pl/"
-
-    def start_requests(self) -> scrapy.Request:
-        for query in self.queries:
+    def start_requests(self):
+        data = ["ziemiomorze,3", "kochamy plutona,3"]
+        queries = [query.strip().split(",") for query in data]
+        for query, num_results in queries:
             url = f"{self.main_url}wyszukiwanie?szukaj={query}"
             yield scrapy.Request(
                 url=url,
                 callback=self.parse_search,
-                meta={"query": query},
+                meta={"query": query, "num_results": num_results},
             )
 
     def parse_search(self, response):
@@ -56,4 +56,4 @@ class MatrasSpider(BaseSpider):
         )
         offer["available"] = availability == "InStock"
 
-        
+        yield offer

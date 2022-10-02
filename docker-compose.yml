@@ -18,7 +18,7 @@ services:
   shop_app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./app/Dockerfile
     container_name: shop_app
     volumes:
       - ./app:/app
@@ -31,6 +31,21 @@ services:
       - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/${MONGO_DATABASE}
     depends_on:
       - mongo_db
+
+    scrapers:
+      build:
+        context: .
+        dockerfile: ./scrapers/Dockerfile
+      container_name: scrapers
+      volumes:
+        - ./scrapers:/scrapers
+      env_file:
+        - .env
+      environment:
+      - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/${MONGO_DATABASE}
+      depends_on:
+        - mongo_db
+
 
 volumes:
   mongo:

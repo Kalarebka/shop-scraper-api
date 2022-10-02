@@ -11,3 +11,6 @@ db.createUser(
 
 db.createCollection("queries")
 db.createCollection("offers")
+
+// create index to speed up searches by query sorted by timestamp
+db.offers.createIndex({"query": 1, "timestamp": -1})

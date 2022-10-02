@@ -34,7 +34,7 @@ class Offer(BaseModel):
 class ProductQuery(BaseModel):
     _id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     query: str = Field(...)
-    num_results: int = Field(...)
+    active: bool = Field(...)
 
     class Config:
         allow_population_by_field_name = True

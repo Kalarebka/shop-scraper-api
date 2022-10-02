@@ -3,16 +3,13 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 
-import json
 import pymongo
 
-from itemadapter import ItemAdapter
 from scrapers import settings
 from scrapy.exceptions import DropItem
 
 
 class MongoDBPipeline:
-
     def __init__(self):
         client = pymongo.MongoClient(settings.MONGODB_URL)
         db = client[settings.MONGODB_DB]
