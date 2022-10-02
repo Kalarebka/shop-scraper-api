@@ -1,59 +1,66 @@
 import scrapy
 
+from collections.abc import Generator
 from datetime import datetime
 
+from spiders.base_spider import BaseSpider
 from scrapers.items import Offer
 
 
 class BonitoSpider(scrapy.Spider):
     name = "bonito"
     allowed_domains = ["bonito.pl"]
-    main_url = ["http://bonito.pl/"]
+    main_url = "http://bonito.pl/"
 
-    def start_requests(self):
-        data = ["ziemiomorze,3", "kochamy plutona,3"]
-        queries = [query.strip().split(",") for query in data]
-        for query, num_results in queries:
-            url = f"{self.main_url}wyszukiwanie?szukaj={query}"
+    def start_requests(self) -> Generator[scrapy.Request, None, None]:
+        for query in self.queries:
+            url = f"{self.main_url}/szukaj/?szukaj=k{query}&ordering=0"
             yield scrapy.Request(
                 url=url,
                 callback=self.parse_search,
-                meta={"query": query, "num_results": num_results},
+                meta={"query": query},
             )
 
-    def parse_search(self, response):
-        num_results = int(response.meta["num_results"])
-        search_results = response.css("div.book")[:num_results]
+    def parse_search(
+        self, response: scrapy.Response
+    ) -> Generator[scrapy.Request, None, None]:
+        # TODO decide how many results to scrape from a search
+        search_results = response.xpath("//div[contains(@id, 'result')]")
         for result in search_results:
-            url = result.css("div.image a.show::attr(href)").get()
+            url = result.xpath("//a[contains(@title, 'produkt')]//@href").get()
             yield scrapy.Request(
-                url=url,
+                url=f"{self.main_url}{url}",
                 callback=self.parse_result,
                 meta={"query": response.meta["query"]},
             )
 
-    def parse_result(self, response):
+    def parse_result(self, response: scrapy.Response) -> None:
         offer = Offer()
-        offer["title"] = response.css(
-            "div.mainContainer div#wob-link::attr(data-title)"
-        ).get()
-        offer["author"] = response.css("div#wob-link::attr(data-authors)").get()
+        offer["title"] = response.xpath("//h1[@itemprop='name']//text()").get()
+
+        authors = (
+            response.css("div.product_container")
+            .xpath(
+                "//div[1]/div[2]/div[2]/div[1]/div[2]/a[contains(@href, 'autor')]//text()"
+            )
+            .getall()
+        )
+        offer["author"] = ", ".join(authors)
+
         offer["timestamp"] = datetime.now()
-        offer["shop"] = "matras.pl"
-        offer["price"] = response.css("div.buy-schema::attr(data-price-current)").get()
+        offer["shop"] = "bonito.pl"
+        offer["price"] = response.xpath("//div[@itemprop='price']//@content").get()
         offer["url"] = response.request.url
 
         offer["query"] = response.meta["query"]
 
-        isbn_search = response.css("div.colsInfo").re(r"ISBN: ([\d-]+)")
-        if isbn_search:
-            offer["isbn"] = isbn_search[0]
-        else:
-            offer["isbn"] = None
+        offer["isbn"] = response.xpath(
+            "//td[text()='Numer ISBN']/following-sibling::td//text()"
+        ).get()
 
-        availability = (
-            response.css("div.buy-schema link::attr(href)").get().split("/")[-1]
-        )
+        availability = response.xpath(
+            "//span[@itemprop='availability']//@content"
+        ).get()
         offer["available"] = availability == "InStock"
 
-        yield offer
+        self.db_handler.save_item_to_db(offer)

@@ -14,6 +14,12 @@ BOT_NAME = "scrapers"
 SPIDER_MODULES = ["scrapers.spiders"]
 NEWSPIDER_MODULE = "scrapers.spiders"
 
+# MongoDB settings:
+MONGODB_SERVER = "mongo_db"
+MONGODB_PORT = 27017
+MONGODB_DB = os.environ.get("MONGO_DATABASE")
+MONGODB_URL = os.environ.get("MONGODB_URL")
+
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'scrapers (+http://www.yourdomain.com)'
@@ -64,15 +70,10 @@ ROBOTSTXT_OBEY = False
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {
-    "scrapers.pipelines.MongoDBPipeline": 300,
-}
+#ITEM_PIPELINES = {
+#    'scrapers.pipelines.ScrapersPipeline': 300,
+#}
 
-MONGODB_SERVER = "mongo_db"
-MONGODB_PORT = 27017
-MONGODB_DB = os.environ.get("MONGO_DATABASE")
-MONGODB_COLLECTION = "offers"
-MONGODB_URL = os.environ.get("MONGODB_URL")
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

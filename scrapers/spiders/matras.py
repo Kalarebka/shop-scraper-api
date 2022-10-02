@@ -1,10 +1,10 @@
 import scrapy
 
+from collections.abc import Generator
 from datetime import datetime
 
 from base_spider import BaseSpider
 from scrapers.items import Offer
-
 
 
 class MatrasSpider(BaseSpider):
@@ -12,18 +12,20 @@ class MatrasSpider(BaseSpider):
     allowed_domains = ["matras.pl"]
     main_url = "http://matras.pl/"
 
-    def start_requests(self) -> scrapy.Request:
+    def start_requests(self) -> Generator[scrapy.Request, None, None]:
         for query in self.queries:
-            url = f"{self.main_url}wyszukiwanie?szukaj={query}"
+            url: str = f"{self.main_url}wyszukiwanie?szukaj={query}"
             yield scrapy.Request(
                 url=url,
                 callback=self.parse_search,
                 meta={"query": query},
             )
 
-    def parse_search(self, response):
-        num_results = int(response.meta["num_results"])
-        search_results = response.css("div.book")[:num_results]
+    def parse_search(
+        self, response: scrapy.Response
+    ) -> Generator[scrapy.Request, None, None]:
+        # TODO decide how many results to scrape from a search
+        search_results = response.css("div.book")[0]
         for result in search_results:
             url = result.css("div.image a.show::attr(href)").get()
             yield scrapy.Request(
@@ -32,8 +34,8 @@ class MatrasSpider(BaseSpider):
                 meta={"query": response.meta["query"]},
             )
 
-    def parse_result(self, response):
-        offer = Offer()
+    def parse_result(self, response: scrapy.Response) -> None:
+        offer: Offer = Offer()
         offer["title"] = response.css(
             "div.mainContainer div#wob-link::attr(data-title)"
         ).get()
@@ -56,4 +58,4 @@ class MatrasSpider(BaseSpider):
         )
         offer["available"] = availability == "InStock"
 
-        
+        self.db_handler.save_item_to_db(offer)

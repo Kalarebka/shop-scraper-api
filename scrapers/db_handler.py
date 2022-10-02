@@ -8,11 +8,11 @@ from scrapy.exceptions import DropItem
 
 
 class DBHandler:
-    def __init__(self):
+    def __init__(self) -> None:
         self.client: pymongo.MongoClient = pymongo.MongoClient(settings.MONGODB_URL)
         self.db = self.client[settings.MONGODB_DB]
-        
-    def save_item_to_db(self, item: Offer):
+
+    def save_item_to_db(self, item: Offer) -> Offer:
         offers_collection = self.db.offers
         valid = True
         for field in item:
@@ -26,8 +26,5 @@ class DBHandler:
     def get_queries_from_db(self) -> List[str]:
         queries_collection = self.db.queries
         query_documents = queries_collection.find({"active": True})
-        queries = [query['query'] for query in query_documents]
+        queries = [query["query"] for query in query_documents]
         return queries
-
-
-
