@@ -1,10 +1,11 @@
 import scrapy
 
-from collections.abc import Generator
 from datetime import datetime
+from typing import Iterator
 
-from base_spider import BaseSpider
+from scrapers.spiders.base_spider import BaseSpider
 from scrapers.items import Offer
+from scrapy.http import TextResponse
 
 
 class MatrasSpider(BaseSpider):
@@ -12,7 +13,7 @@ class MatrasSpider(BaseSpider):
     allowed_domains = ["matras.pl"]
     main_url = "http://matras.pl/"
 
-    def start_requests(self) -> Generator[scrapy.Request, None, None]:
+    def start_requests(self) -> Iterator[scrapy.Request]:
         for query in self.queries:
             url: str = f"{self.main_url}wyszukiwanie?szukaj={query}"
             yield scrapy.Request(
@@ -21,9 +22,7 @@ class MatrasSpider(BaseSpider):
                 meta={"query": query},
             )
 
-    def parse_search(
-        self, response: scrapy.Response
-    ) -> Generator[scrapy.Request, None, None]:
+    def parse_search(self, response: TextResponse) -> Iterator[scrapy.Request]:
         # TODO decide how many results to scrape from a search
         search_results = response.css("div.book")[0]
         for result in search_results:
@@ -34,7 +33,7 @@ class MatrasSpider(BaseSpider):
                 meta={"query": response.meta["query"]},
             )
 
-    def parse_result(self, response: scrapy.Response) -> None:
+    def parse_result(self, response: TextResponse) -> None:
         offer: Offer = Offer()
         offer["title"] = response.css(
             "div.mainContainer div#wob-link::attr(data-title)"
@@ -42,7 +41,7 @@ class MatrasSpider(BaseSpider):
         offer["author"] = response.css("div#wob-link::attr(data-authors)").get()
         offer["timestamp"] = datetime.now()
         offer["shop"] = "matras.pl"
-        offer["price"] = response.css("div.buy-schema::attr(data-price-current)").get()
+        offer["price"] = float(response.css("div.buy-schema::attr(data-price-current)").get())
         offer["url"] = response.request.url
 
         offer["query"] = response.meta["query"]
