@@ -3,7 +3,7 @@ import scrapy
 from datetime import datetime
 from typing import Iterator
 
-from scrapers.spiders.base_spider import BaseSpider
+from scrapers.spiders import BaseSpider
 from scrapers.items import Offer
 from scrapy.http import TextResponse
 
@@ -41,7 +41,9 @@ class MatrasSpider(BaseSpider):
         offer["author"] = response.css("div#wob-link::attr(data-authors)").get()
         offer["timestamp"] = datetime.now()
         offer["shop"] = "matras.pl"
-        offer["price"] = float(response.css("div.buy-schema::attr(data-price-current)").get())
+        offer["price"] = float(
+            response.css("div.buy-schema::attr(data-price-current)").get()
+        )
         offer["url"] = response.request.url
 
         offer["query"] = response.meta["query"]

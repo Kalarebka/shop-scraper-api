@@ -3,7 +3,7 @@ import scrapy
 from datetime import datetime
 from typing import Iterator
 
-from scrapers.spiders.base_spider import BaseSpider
+from scrapers.spiders import BaseSpider
 from scrapers.items import Offer
 from scrapy.http import TextResponse
 
@@ -48,7 +48,9 @@ class BonitoSpider(BaseSpider):
 
         offer["timestamp"] = datetime.now()
         offer["shop"] = "bonito.pl"
-        offer["price"] = float(response.xpath("//div[@itemprop='price']//@content").get())
+        offer["price"] = float(
+            response.xpath("//div[@itemprop='price']//@content").get()
+        )
         offer["url"] = response.request.url
 
         offer["query"] = response.meta["query"]

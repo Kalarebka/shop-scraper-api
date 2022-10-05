@@ -22,29 +22,29 @@ services:
     container_name: shop_app
     volumes:
       - ./app:/app
-      - ./scrapers:/scrapers
     env_file:
       - .env
     ports:
       - 8000:8000
     environment:
       - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/${MONGO_DATABASE}
+      - SCRAPERS_URL=http://scrapers:9080/
     depends_on:
       - mongo_db
 
-    scrapers:
-      build:
-        context: .
-        dockerfile: ./scrapers/Dockerfile
-      container_name: scrapers
-      volumes:
-        - ./scrapers:/scrapers
-      env_file:
-        - .env
-      environment:
-      - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/${MONGO_DATABASE}
-      depends_on:
-        - mongo_db
+  scrapers:
+    build:
+      context: .
+      dockerfile: ./scrapers/Dockerfile
+    container_name: scrapers
+    volumes:
+      - ./scrapers:/scrapers
+    env_file:
+      - .env
+    environment:
+    - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/${MONGO_DATABASE}
+    depends_on:
+      - mongo_db
 
 
 volumes:

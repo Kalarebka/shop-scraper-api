@@ -2,6 +2,26 @@
     https://art049.github.io/odmantic/usage_fastapi/
     https://github.com/art049/odmantic
 
+To run:
+
+
+
+
+
+That would have to be:
+
+db.users.find({"name": /.*m.*/})
+Or, similar:
+
+db.users.find({"name": /m/})
+You're looking for something that contains "m" somewhere (SQL's '%' operator is equivalent to regular expressions' '.*'), not something that has "m" anchored to the beginning of the string.
+
+Note: MongoDB uses regular expressions which are more powerful than "LIKE" in SQL. With regular expressions you can create any pattern that you imagine.
+
+For more information on regular expressions, refer to Regular expressions (MDN).
+
+
+
 2 options:
 - api only interacts with db (can add queries that are scraped cyclically)
 - OR can scrape live queries unless there are no cached results
