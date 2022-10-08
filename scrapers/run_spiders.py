@@ -2,9 +2,11 @@
 
 from scrapy import spiderloader
 
-from scrapy.crawler import Crawler, CrawlerProcess
+from scrapy.crawler import CrawlerRunner
 from scrapy.settings import Settings
 from scrapy.utils.project import get_project_settings
+
+from twisted.internet import reactor, defer
 
 
 def run_spiders(query: str = None) -> None:
@@ -15,15 +17,12 @@ def run_spiders(query: str = None) -> None:
     spider_loader = spiderloader.SpiderLoader.from_settings(settings)
     spiders = spider_loader.list()
 
-    process = CrawlerProcess(settings)
+    runner = CrawlerRunner(settings)
+    deferreds = set()
 
     for spider in spiders:
-        crawler = Crawler(
-            spider,
-            settings={
-                **settings,
-            },
-        )
-        process.crawl(crawler, query=query)
+        d = runner.crawl(spider)
+        deferreds.add(d)
 
-    process.start()
+    defer.DeferredList(deferreds).addBoth(lambda _: reactor.stop())
+    reactor.run()

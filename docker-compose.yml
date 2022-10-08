@@ -45,6 +45,19 @@ services:
     - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/${MONGO_DATABASE}
     depends_on:
       - mongo_db
+      - rabbitmq
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3
+    env_file:
+      - .env
+    environment:
+    - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+    - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    ports:
+    - 5672:5672
+    - 15672:15672
 
 
 volumes:
