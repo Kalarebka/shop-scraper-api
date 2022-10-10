@@ -1,5 +1,4 @@
-import pymongo
-
+from pymongo import MongoClient
 from typing import List
 
 from scrapers import settings
@@ -9,7 +8,7 @@ from scrapy.exceptions import DropItem
 
 class DBHandler:
     def __init__(self) -> None:
-        self.client: pymongo.MongoClient = pymongo.MongoClient(settings.MONGODB_URL)
+        self.client: MongoClient = MongoClient(settings.MONGODB_URL)
         self.db = self.client[settings.MONGODB_DB]
 
     def save_item_to_db(self, item: Offer) -> Offer:

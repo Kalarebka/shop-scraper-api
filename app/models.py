@@ -1,6 +1,7 @@
 from bson import ObjectId
 from datetime import datetime
-from pydantic import BaseModel, Field, Optional
+from pydantic import BaseModel, Field
+from typing import Any, Optional
 
 # from mongodb.com; convert bson ObjectIds to strings
 class PyObjectId(ObjectId):
@@ -20,23 +21,40 @@ class PyObjectId(ObjectId):
 
 
 class Offer(BaseModel):
-    _id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    title: str
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id", exclude=True)
+    title: str = Field(...)
+    author: str = Field(...)
+    isbn: str
     timestamp: datetime = Field(...)
-    shop_id: int
-    price: float
-    shipping: Optional[float]
-    exact: bool = False
+    shop: str = Field(...)
+    price: float = Field(...)
     available: bool = False
-    url: str
-
-
-class ProductQuery(BaseModel):
-    _id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    url: str = Field(...)
     query: str = Field(...)
-    active: bool = Field(...)
+
+
+class Query(BaseModel):
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    query: str = Field(...)
+    active: bool = True
 
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
+
+
+class UpdateQuery(BaseModel):
+    query: Optional[str]
+    active: Optional[bool]
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
+class CreateQuery(BaseModel):
+    query: str = Field(...)
+    active: bool = True
+
+    class Config:
+        arbitrary_types_allowed = True

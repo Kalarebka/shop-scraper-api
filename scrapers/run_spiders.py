@@ -24,5 +24,7 @@ def run_spiders(query: str = None) -> None:
         d = runner.crawl(spider)
         deferreds.add(d)
 
+    # Twisted reactor will be stopped after either all spiders finish running or there's an error
     defer.DeferredList(deferreds).addBoth(lambda _: reactor.stop())
+
     reactor.run()
