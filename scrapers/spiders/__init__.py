@@ -11,13 +11,13 @@ from scrapers.db_handler import DBHandler
 
 class BaseSpider(scrapy.Spider):
     def __init__(
-        self, live_query: Union[str, None] = None, *args: str, **kwargs: Any
+        self, query: Union[str, None] = None, *args: str, **kwargs: Any
     ) -> None:
         super(BaseSpider, self).__init__(*args, **kwargs)
         self.db_handler = DBHandler()
-        if live_query:
+        if query:
             self.queries = [
-                live_query,
+                query,
             ]
         else:
             self.queries = self.db_handler.get_queries_from_db()

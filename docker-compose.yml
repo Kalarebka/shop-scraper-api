@@ -38,11 +38,11 @@ services:
       dockerfile: ./scrapers/Dockerfile
     container_name: scrapers
     volumes:
-      - ./scrapers:/scrapers
+      - ./scrapers:/scrapyrt/project/scrapers
     env_file:
       - .env
     environment:
-    - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/${MONGO_DATABASE}
+      - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/${MONGO_DATABASE}
     depends_on:
       - mongo_db
       - rabbitmq

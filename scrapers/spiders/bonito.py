@@ -1,10 +1,9 @@
-import scrapy
-
 from datetime import datetime
 from typing import Iterator
 
-from scrapers.spiders import BaseSpider
+import scrapy
 from scrapers.items import Offer
+from scrapers.spiders import BaseSpider
 from scrapy.http import TextResponse
 
 
@@ -23,8 +22,7 @@ class BonitoSpider(BaseSpider):
             )
 
     def parse_search(self, response: TextResponse) -> Iterator[scrapy.Request]:
-        # TODO decide how many results to scrape from a search
-        search_results = response.xpath("//div[contains(@id, 'result')]")
+        search_results = response.xpath("//div[contains(@id, 'result')]")[:3]
         for result in search_results:
             url = result.xpath("//a[contains(@title, 'produkt')]//@href").get()
             yield scrapy.Request(

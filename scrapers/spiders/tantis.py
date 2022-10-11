@@ -1,10 +1,9 @@
-import scrapy
-
 from datetime import datetime
 from typing import Iterator
 
-from scrapers.spiders import BaseSpider
+import scrapy
 from scrapers.items import Offer
+from scrapers.spiders import BaseSpider
 from scrapy.http import TextResponse
 
 
@@ -23,8 +22,7 @@ class TantisSpider(BaseSpider):
             )
 
     def parse_search(self, response: TextResponse) -> Iterator[scrapy.Request]:
-        # TODO decide how many results to scrape from a search
-        search_results = response.css("div.product-card")
+        search_results = response.css("div.product-card")[:3]
         for result in search_results:
             url = result.css("h3.product-name a::attr(href)").get()
             yield scrapy.Request(

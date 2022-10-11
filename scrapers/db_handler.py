@@ -1,9 +1,10 @@
-from pymongo import MongoClient
 from typing import List
+
+from pymongo import MongoClient
+from scrapy.exceptions import DropItem
 
 from scrapers import settings
 from scrapers.items import Offer
-from scrapy.exceptions import DropItem
 
 
 class DBHandler:

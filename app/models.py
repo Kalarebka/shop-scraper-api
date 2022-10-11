@@ -1,7 +1,9 @@
-from bson import ObjectId
 from datetime import datetime
+from typing import Optional
+
+from bson import ObjectId
 from pydantic import BaseModel, Field
-from typing import Any, Optional
+
 
 # from mongodb.com; convert bson ObjectIds to strings
 class PyObjectId(ObjectId):
@@ -47,14 +49,6 @@ class Query(BaseModel):
 class UpdateQuery(BaseModel):
     query: Optional[str]
     active: Optional[bool]
-
-    class Config:
-        arbitrary_types_allowed = True
-
-
-class CreateQuery(BaseModel):
-    query: str = Field(...)
-    active: bool = True
 
     class Config:
         arbitrary_types_allowed = True
