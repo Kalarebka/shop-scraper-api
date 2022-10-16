@@ -21,7 +21,7 @@ services:
       dockerfile: ./app/Dockerfile
     container_name: shop_app
     volumes:
-      - ./app:/app
+      - ./app:/code/app
     env_file:
       - .env
     ports:
@@ -45,19 +45,42 @@ services:
       - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/${MONGO_DATABASE}
     depends_on:
       - mongo_db
-      - rabbitmq
+      - redis
 
-  rabbitmq:
-    container_name: rabbitmq
-    image: rabbitmq:3
+  redis:
+    container_name: redis
+    image: redis:7
     env_file:
       - .env
-    environment:
-    - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
-    - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    command: "redis-server"
     ports:
-    - 5672:5672
-    - 15672:15672
+    - 6379:6379
+
+  celery-beat:
+    container_name: celery-beat
+    build:
+      context: .
+      dockerfile: ./scrapers/Dockerfile.celery
+    command: "celery -A celery beat --loglevel DEBUG"
+    environment:
+     - BROKER_URL=${REDIS_URL}
+    volumes:
+      - ./scrapers:/home/celery/scrapers
+    depends_on:
+      - redis
+
+  celery-worker:
+    container_name: celery-worker
+    build:
+      context: .
+      dockerfile: ./scrapers/Dockerfile.celery
+    depends_on:
+      - redis
+    command: "celery -A celery worker --loglevel INFO"
+    volumes:
+      - ./scrapers:/home/celery/scrapers
+    environment:
+      - BROKER_URL=${REDIS_URL}
 
 
 volumes:

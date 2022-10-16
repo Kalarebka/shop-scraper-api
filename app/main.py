@@ -28,7 +28,7 @@ class Mode(str, Enum):
     inactive = "inactive"
 
 
-@app.get("/queries/{mode}", response_model=List[Query])
+@app.get("/query/{mode}", response_model=List[Query])
 async def get_queries(mode: Mode, max_results: Union[int, None] = None) -> List[Query]:
     queries: List[Query]
     if mode == Mode.inactive:
@@ -42,7 +42,7 @@ async def get_queries(mode: Mode, max_results: Union[int, None] = None) -> List[
     return queries
 
 
-@app.post("/queries/", response_model=Query)
+@app.post("/query/", response_model=Query)
 async def add_query(query: Query = Body(...)) -> JSONResponse:
     query = jsonable_encoder(query)
     new_query = await db["queries"].insert_one(query)
@@ -50,7 +50,7 @@ async def add_query(query: Query = Body(...)) -> JSONResponse:
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=added_query)
 
 
-@app.put("/queries/{id}", response_model=Query)
+@app.put("/query/{id}", response_model=Query)
 async def update_query(id: str, query: UpdateQuery = Body(...)) -> Query:
     query_update = {k: v for k, v in query.dict().items() if v is not None}
 
@@ -69,7 +69,7 @@ async def update_query(id: str, query: UpdateQuery = Body(...)) -> Query:
     raise HTTPException(status_code=404, detail=f"Query {id} not found")
 
 
-@app.delete("/queries/{id}")
+@app.delete("/query/{id}")
 async def delete_query(id: str) -> Response:
     result = await db["queries"].delete_one({"_id": id})
 
@@ -105,9 +105,10 @@ async def get_history(
 
 
 @app.get("/product/search/")
-async def search(title: Union[str, None] = None) -> List[Offer]:
+async def searchxxx(title: Union[str, None] = None) -> List[Offer]:
     # Search offer in database by arbitrary set of parameters
     # title, author (db regex search)
     # ISBN (if available) (convert to no "-"s both in app and in scraper)
     # availability
+
     pass
