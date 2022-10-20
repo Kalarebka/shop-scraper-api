@@ -82,7 +82,7 @@ async def delete_query(id: str) -> Response:
 # Retrieving data from database (UNDER CONSTRUCTION)
 
 
-@app.get("/product/offers")
+@app.get("/product")
 async def get_product(query: str, no_cache: bool = False) -> List[Offer]:
     if no_cache == False:
         # TODO should search for offers from the last 24h; if there are none, send a request

@@ -4,7 +4,7 @@ RUN useradd --create-home celery
 USER celery
 ENV PATH="/home/celery/.local/bin:${PATH}"
 
-WORKDIR /home/celery/
+WORKDIR /home/celery
 ADD requirements_celery.txt .
 ADD requirements_scraping.txt .
 RUN pip install -r requirements_celery.txt
