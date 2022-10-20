@@ -3,7 +3,7 @@ from typing import Iterator
 
 import scrapy
 from scrapers.items import Offer
-from scrapers.spiders import BaseSpider
+from scrapers.base_spider import BaseSpider
 from scrapy.http import TextResponse
 
 
