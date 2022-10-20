@@ -61,7 +61,7 @@ services:
     build:
       context: .
       dockerfile: ./scrapers/Dockerfile.celery
-    command: "celery -A scrapers beat --loglevel DEBUG"
+    command: "celery -A tasks beat --loglevel DEBUG"
     environment:
      - BROKER_URL=${REDIS_URL}
     volumes:
@@ -76,7 +76,7 @@ services:
       dockerfile: ./scrapers/Dockerfile.celery
     depends_on:
       - redis
-    command: "celery -A scrapers worker --loglevel INFO"
+    command: "celery -A tasks worker --loglevel INFO"
     volumes:
       - ./scrapers:/home/celery/scrapers
     environment:

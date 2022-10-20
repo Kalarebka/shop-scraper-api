@@ -1,9 +1,14 @@
-from datetime import timedelta
-
+from celery import Celery
 from celery.schedules import crontab
 
-from scrapers.celery import app
-from scrapers.run_spiders import run_spiders
+from run_spiders import run_spiders
+
+
+app = Celery("tasks")
+
+app.config_from_object("celeryconfig")
+
+
 
 
 @app.task()

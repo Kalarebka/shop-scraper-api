@@ -1,5 +1,5 @@
 from celery import Celery
 
-app = Celery("scrapers")
+app = Celery("celery")
 
-app.config_from_object("scrapers.celeryconfig")
+app.config_from_object("celeryconfig")
