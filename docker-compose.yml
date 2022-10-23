@@ -29,6 +29,7 @@ services:
     environment:
       - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/${MONGO_DATABASE}
       - SCRAPERS_URL=http://scrapers:9080/
+      - MONGODB_DB=${MONGO_DATABASE}
     depends_on:
       - mongo_db
 

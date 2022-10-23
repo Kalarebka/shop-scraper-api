@@ -9,8 +9,6 @@ app = Celery("tasks")
 app.config_from_object("celeryconfig")
 
 
-
-
 @app.task()
 def scheduled_run_spiders() -> None:
     run_spiders()
