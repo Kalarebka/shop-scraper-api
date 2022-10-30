@@ -53,9 +53,11 @@ class BonitoSpider(BaseSpider):
 
         offer["query"] = response.meta["query"]
 
-        offer["isbn"] = response.xpath(
-            "//td[text()='Numer ISBN']/following-sibling::td//text()"
-        ).get()
+        offer["isbn"] = (
+            response.xpath("//td[text()='Numer ISBN']/following-sibling::td//text()")
+            .get()
+            .replace("-", "")
+        )
 
         availability = response.xpath(
             "//span[@itemprop='availability']//@content"

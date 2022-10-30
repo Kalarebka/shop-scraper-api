@@ -1,4 +1,4 @@
-# under construction
+from typing import Union
 
 from scrapy import spiderloader
 from scrapy.crawler import CrawlerRunner
@@ -7,11 +7,8 @@ from scrapy.utils.project import get_project_settings
 from twisted.internet import defer, reactor
 
 
-def run_spiders(query: str = None) -> None:
-    # This is one big TODO at the moment
+def run_spiders(query: Union[str, None] = None) -> None:
     settings: Settings = get_project_settings()
-
-    # ? Would it be faster to hard-code the spider classes?
     spider_loader = spiderloader.SpiderLoader.from_settings(settings)
     spiders = spider_loader.list()
 

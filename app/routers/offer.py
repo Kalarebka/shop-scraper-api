@@ -1,45 +1,33 @@
-from datetime import datetime
-from typing import List, Union
+from typing import List
 
 from fastapi import APIRouter
-from fastapi import Body, FastAPI, HTTPException, status
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse, Response
+from fastapi import Body
 
-from app.models import Offer, Query, UpdateQuery
-from app.scraping_requests import request_live_query
+from app.db_handler import DBHandler
+from app.models import Offer, OfferSearch
 
 
-router = APIRouter(prefix="/query")
+router = APIRouter(prefix="/offer")
+db = DBHandler()
 
 
-@router.get("/product")
-async def get_product(query: str, no_cache: bool = False) -> List[Offer]:
-    if no_cache == False:
-        # TODO should search for offers from the last 24h; if there are none, send a request
-        # TODO optional parameter to only return available offers?
-        offers = await db["offers"].find({"query": query}).to_list(length=10)
-        if offers:
-            return offers
+@router.get("/")
+async def get_offers(query: str) -> List[Offer]:
+    """Searches for result for the query from the last 24 hours.
+    If there are none, sends a live query to the scrapers"""
+    results = await db.get_offers(query)
+    if results:
+        return results
     offers = request_live_query(query)
     return offers
 
 
-@router.get("/product/history/")
-async def get_history(
-    query: str,
-    from_date: Union[datetime, None] = None,
-    to_date: Union[datetime, None] = None,
-) -> List[Offer]:
-    # return all saved results for a query; optionally limited from- and to- dates
-    pass
-
-
-@router.get("/product/search/")
-async def searchxxx(title: Union[str, None] = None) -> List[Offer]:
-    # Search offer in database by arbitrary set of parameters
-    # title, author (db regex search)
-    # ISBN (if available) (convert to no "-"s both in app and in scraper)
-    # availability
-
-    pass
+@router.get("/search/", response_model=List[Offer])
+async def search_offers(offer_search: OfferSearch = Body(...)) -> List[Offer]:
+    """Searches for results in the database with arbitrary set of parameters
+    - title, author - search with regex
+    - isbn, from_date, to_date 
+    - available_only (defaults to True)
+    - sorted_by (name of the field, defaults to timestamp), reverse (defaults to True)"""
+    found_offers = await db.filter_offers(offer_search)
+    return found_offers

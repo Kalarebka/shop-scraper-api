@@ -20,13 +20,13 @@ class Mode(str, Enum):
 
 
 @router.get("/{mode}", response_model=List[Query])
-async def get_queries(mode: Mode, max_results: Union[int, None] = None) -> List[Query]:
+async def get_queries(mode: Mode, max_results: Union[int, None] = None) -> List[dict]:
     filter = {}
     if mode == Mode.inactive:
         filter = {"active": False}
     elif mode == Mode.active:
         filter = {"active": True}
-    queries = await db.get_queries(filter=filter, max_results=max_results)
+    queries: List[dict] = await db.get_queries(filter=filter, max_results=max_results)
     return queries
 
 
@@ -38,15 +38,15 @@ async def add_query(query: Query = Body(...)) -> JSONResponse:
 
 
 @router.put("/{id}", response_model=Query)
-async def update_query(id: str, query: UpdateQuery = Body(...)) -> Query:
+async def update_query(id: str, query: UpdateQuery = Body(...)) -> Union[dict, None]:
     query_update = {k: v for k, v in query.dict().items() if v is not None}
 
     if len(query_update) >= 1:
-        updated_query = await db.update_query(id, query_update)
+        updated_query: Union[dict, None] = await db.update_query(id, query_update)
         if updated_query is not None:
             return updated_query
 
-    existing_query = await db.get_query_by_id(id)
+    existing_query: Union[dict, None] = await db.get_query_by_id(id)
     if existing_query is not None:
         return existing_query
 

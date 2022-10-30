@@ -48,7 +48,7 @@ class MatrasSpider(BaseSpider):
 
         isbn_search = response.css("div.colsInfo").re(r"ISBN: ([\d-]+)")
         if isbn_search:
-            offer["isbn"] = isbn_search[0]
+            offer["isbn"] = isbn_search[0].replace("-", "")
         else:
             offer["isbn"] = None
 

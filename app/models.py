@@ -1,5 +1,5 @@
-from datetime import datetime
-from typing import Optional
+from datetime import date, datetime
+from typing import Generator, Optional
 
 from bson import ObjectId
 from pydantic import BaseModel, Field
@@ -8,11 +8,11 @@ from pydantic import BaseModel, Field
 # from mongodb.com; convert bson ObjectIds to strings
 class PyObjectId(ObjectId):
     @classmethod
-    def __get_validators__(cls):
+    def __get_validators__(cls) -> Generator:
         yield cls.validate
 
     @classmethod
-    def validate(cls, v):
+    def validate(cls, v) -> ObjectId:
         if not ObjectId.is_valid(v):
             raise ValueError("Invalid objectid")
         return ObjectId(v)
@@ -26,13 +26,25 @@ class Offer(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id", exclude=True)
     title: str = Field(...)
     author: str = Field(...)
-    isbn: str
+    isbn: Optional[str]
     timestamp: datetime = Field(...)
     shop: str = Field(...)
     price: float = Field(...)
     available: bool = False
     url: str = Field(...)
     query: str = Field(...)
+
+
+class OfferSearch(BaseModel):
+    title: Optional[str]
+    author: Optional[str]
+    isbn: Optional[str]
+    from_date: Optional[date]
+    to_date: Optional[date]
+    available_only: bool = True
+    sorted_by: str = "timestamp"
+    reverse: bool = True
+    max_results: int = 0
 
 
 class Query(BaseModel):
