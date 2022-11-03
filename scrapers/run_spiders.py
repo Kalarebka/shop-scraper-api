@@ -6,6 +6,9 @@ from scrapy.settings import Settings
 from scrapy.utils.project import get_project_settings
 from twisted.internet import defer, reactor
 
+from multiprocessing import Process
+from scrapy.crawler import CrawlerProcess
+
 
 def run_spiders(query: Union[str, None] = None) -> None:
     settings: Settings = get_project_settings()

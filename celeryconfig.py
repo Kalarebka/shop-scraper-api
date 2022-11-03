@@ -8,4 +8,4 @@ mongodb_backend_settings = {
 }
 timezone = "Europe/Warsaw"
 enable_utc = True
-imports = ("tasks",)
+imports = ("scrapers.tasks",)
