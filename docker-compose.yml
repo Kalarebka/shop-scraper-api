@@ -38,8 +38,7 @@ services:
     ports:
       - 8000:8000
     environment:
-      - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/${MONGO_DATABASE}
-      - SCRAPERS_URL=http://scrapers:9080/
+      - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017
       - MONGODB_DB=${MONGO_DATABASE}
       - BROKER_URL=${REDIS_URL}
     depends_on:
@@ -50,9 +49,10 @@ services:
     build:
       context: .
       dockerfile: ./scrapers/Dockerfile
-    command: "celery -A tasks beat --loglevel DEBUG -s /tmp/celerybeat-schedule"
+    command: "celery -A scrapers.tasks beat --loglevel DEBUG -s /tmp/celerybeat-schedule"
     environment:
      - BROKER_URL=${REDIS_URL}
+     - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/
     volumes:
       - ./scrapers:/home/celery/scrapers
     depends_on:
@@ -64,19 +64,18 @@ services:
     build:
       context: .
       dockerfile: ./scrapers/Dockerfile
-    depends_on:
-      - redis
-    command: "celery -A tasks worker --loglevel INFO"
+    command: "celery -A scrapers.tasks worker --loglevel INFO"
     volumes:
       - ./scrapers:/home/celery/scrapers
     env_file:
       - .env
     environment:
-      - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/${MONGO_DATABASE}
+      - MONGODB_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/
       - BROKER_URL=${REDIS_URL}
     depends_on:
-      - mongo_db
       - redis
+      - mongo_db
+      
 
 volumes:
   mongo:

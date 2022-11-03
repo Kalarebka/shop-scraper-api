@@ -1,6 +1,7 @@
 from typing import List
 
 from pymongo import MongoClient
+from pymongo.database import Database
 from scrapy.exceptions import DropItem
 
 from scrapers import settings
@@ -10,7 +11,7 @@ from scrapers.items import Offer
 class DBHandler:
     def __init__(self) -> None:
         self.client: MongoClient = MongoClient(settings.MONGODB_URL)
-        self.db = self.client[settings.MONGODB_DB]
+        self.db: Database = self.client[settings.MONGODB_DB]
 
     def save_item_to_db(self, item: Offer) -> Offer:
         offers_collection = self.db.offers
