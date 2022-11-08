@@ -1,8 +1,10 @@
 from datetime import date, datetime
+from enum import Enum
 from typing import Generator, Optional
 
 from bson import ObjectId
 from pydantic import BaseModel, Field
+from pymongo import ASCENDING, DESCENDING
 
 
 # from mongodb.com; convert bson ObjectIds to strings
@@ -35,15 +37,26 @@ class Offer(BaseModel):
     query: str = Field(...)
 
 
+class SortOrder(int, Enum):
+    ascending = ASCENDING
+    descending = DESCENDING
+
+
+class SortBy(str, Enum):
+    timestamp = "timestamp"
+    book_title = "title"
+    author = "author"
+    
+
 class OfferSearch(BaseModel):
-    title: Optional[str]
+    book_title: Optional[str]
     author: Optional[str]
     isbn: Optional[str]
     from_date: Optional[date]
     to_date: Optional[date]
     available_only: bool = True
-    sorted_by: str = "timestamp"
-    reverse: bool = True
+    sorted_by: SortBy = SortBy.timestamp
+    sort_order: SortOrder = SortOrder.descending
     max_results: int = 0
 
 

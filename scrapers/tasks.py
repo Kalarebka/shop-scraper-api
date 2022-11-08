@@ -23,8 +23,7 @@ def run_spiders(query: Union[str, None]=None) -> None:
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender: Celery, **kwargs: Any) -> None:
     sender.add_periodic_task(
-        # crontab(hour=0, minute=0),
-        crontab(minute=43),
+        crontab(hour='0', minute='1'),
         run_spiders.s(),
         name="run all spiders every night at 12 PM",
     )

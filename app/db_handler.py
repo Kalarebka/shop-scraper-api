@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 import os
 
@@ -5,13 +7,22 @@ from motor import motor_asyncio
 from pymongo import ASCENDING, DESCENDING
 from pymongo.results import DeleteResult
 
-from datetime import datetime, timedelta
-from typing import List, Union
+from datetime import datetime, time, timedelta
 
+from typing import List, Type, Union
 from .models import OfferSearch, Query
 
 
-class DBHandler:
+class Singleton(type):
+    _instances: dict = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class DBHandler(metaclass=Singleton):
+
     def __init__(self) -> None:
         self.client = motor_asyncio.AsyncIOMotorClient(os.environ["MONGODB_URL"])
         self.db = self.client[os.environ["MONGODB_DB"]]
@@ -50,18 +61,17 @@ class DBHandler:
         """Return results for the query from the database from the last 24 hours"""
         now = datetime.now() - timedelta(hours=24)
         result: List[dict] = await self.offers.find(
-            {"query": query, "timestamp": {"$gt": now}}
+            {"query": query, "timestamp": {"$gt": now}}, {'_id': 0}
         ).to_list(length=None)
         return result
 
     async def filter_offers(self, params: OfferSearch) -> List[dict]:
-        """Accept search parameter as an instance of OfferSearch class
+        """Accept search parameters as an instance of OfferSearch class
         Return results from the database with arbitrary set of filtering parameters."""
-        # Create a filter dict (title regex, author regex, isbn no dashes, dates, availability)
 
         filter_params: dict = {}
-        if params.title:
-            title_regex = re.compile(params.title, re.IGNORECASE)
+        if params.book_title:
+            title_regex = re.compile(params.book_title, re.IGNORECASE)
             filter_params["title"] = title_regex
         if params.author:
             author_regex = re.compile(params.author, re.IGNORECASE)
@@ -69,20 +79,18 @@ class DBHandler:
         if params.isbn:
             filter_params["isbn"] = params.isbn.replace("-", "")
         if params.from_date:
-            filter_params["timestamp"] = {"$gte": params.from_date}
+            # time returns (0, 0) -> creates datetime with the date at midnight
+            from_datetime = datetime.combine(params.from_date, time())
+            filter_params["timestamp"] = {"$gte": from_datetime}
         if params.to_date:
-            filter_params["timestamp"] = {"$lte": params.to_date}
+            to_datetime = datetime.combine(params.to_date, time())
+            filter_params["timestamp"] = {"$lte": to_datetime}
         if params.available_only:
             filter_params["available"] = params.available_only
 
-        if params.reverse:
-            sort_order = DESCENDING
-        else:
-            sort_order = ASCENDING
-
         results: List[dict] = (
             await self.offers.find(filter=filter_params, limit=params.max_results)
-            .sort(params.sorted_by, sort_order)
+            .sort(params.sorted_by, params.sort_order)
             .to_list(length=None)
         )
         return results
