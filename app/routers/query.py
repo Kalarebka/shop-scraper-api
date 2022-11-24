@@ -1,54 +1,51 @@
 from enum import Enum
-from typing import List, Union
+from typing import List, Optional, Union
 
 from fastapi import APIRouter, Body, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse, Response
 
-from app.models import Query, UpdateQuery
 from app.db_handler import DBHandler
-
+from app.models import Query, UpdateQuery
 
 router = APIRouter(prefix="/query")
 db = DBHandler()
 
 
-class Mode(str, Enum):
-    get_all = "all"
-    active = "active"
-    inactive = "inactive"
+class Mode(dict, Enum):
+    get_all: dict = {}
+    active: dict = {"active": True}
+    inactive: dict = {"active": False}
 
 
 @router.get("/{mode}", response_model=List[Query])
-async def get_queries(mode: Mode, max_results: Union[int, None] = None) -> List[dict]:
-    filter = {}
-    if mode == Mode.inactive:
-        filter = {"active": False}
-    elif mode == Mode.active:
-        filter = {"active": True}
-    queries: List[dict] = await db.get_queries(filter=filter, max_results=max_results)
+async def get_queries(mode: str, max_results: Union[int, None] = None) -> List[dict]:
+    mode_filter: dict = Mode[mode].value
+    queries: List[dict] = await db.get_queries(
+        find_filter=mode_filter, max_results=max_results
+    )
     return queries
 
 
 @router.post("/", response_model=Query)
 async def add_query(query: Query = Body(...)) -> JSONResponse:
     query = jsonable_encoder(query)
-    added_query = await db.create_query(query)
-    return JSONResponse(status_code=status.HTTP_201_CREATED, content=added_query)
+    added_query_id = await db.create_query(query)
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=added_query_id)
 
 
 @router.put("/{id}", response_model=Query)
-async def update_query(id: str, query: UpdateQuery = Body(...)) -> Union[dict, None]:
+async def update_query(id: str, query: UpdateQuery = Body(...)) -> Optional[str]:
     query_update = {k: v for k, v in query.dict().items() if v is not None}
 
     if len(query_update) >= 1:
-        updated_query: Union[dict, None] = await db.update_query(id, query_update)
-        if updated_query is not None:
-            return updated_query
+        updated_query_id: Optional[str] = await db.update_query(id, query_update)
+        if updated_query_id is not None:
+            return updated_query_id
 
     existing_query: Union[dict, None] = await db.get_query_by_id(id)
     if existing_query is not None:
-        return existing_query
+        return id
 
     raise HTTPException(status_code=404, detail=f"Query {id} not found")
 

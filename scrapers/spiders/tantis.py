@@ -2,9 +2,10 @@ from datetime import datetime
 from typing import Iterator
 
 import scrapy
-from scrapers.items import Offer
-from scrapers.base_spider import BaseSpider
 from scrapy.http import TextResponse
+
+from scrapers.base_spider import BaseSpider
+from scrapers.items import Offer
 
 
 class TantisSpider(BaseSpider):

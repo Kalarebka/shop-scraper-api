@@ -1,6 +1,6 @@
-import scrapy
-
 from typing import Any, Union
+
+import scrapy
 
 from scrapers.db_handler import DBHandler
 

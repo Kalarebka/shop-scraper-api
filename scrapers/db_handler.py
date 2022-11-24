@@ -1,6 +1,7 @@
 from typing import List
 
 from pymongo import MongoClient
+from pymongo.collection import Collection
 from pymongo.database import Database
 from scrapy.exceptions import DropItem
 
@@ -25,7 +26,9 @@ class DBHandler:
         return item
 
     def get_queries_from_db(self) -> List[str]:
-        queries_collection = self.db.queries
-        query_documents = queries_collection.find({"active": True})
+        queries_collection: Collection = self.db.queries
+        query_documents: List[dict] = queries_collection.find({"active": True}).to_list(
+            length=None
+        )
         queries = [query["query"] for query in query_documents]
         return queries

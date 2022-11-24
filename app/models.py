@@ -1,4 +1,5 @@
-from datetime import date, datetime
+import re
+from datetime import date, datetime, time
 from enum import Enum
 from typing import Generator, Optional
 
@@ -46,7 +47,7 @@ class SortBy(str, Enum):
     timestamp = "timestamp"
     book_title = "title"
     author = "author"
-    
+
 
 class OfferSearch(BaseModel):
     book_title: Optional[str]
@@ -58,6 +59,33 @@ class OfferSearch(BaseModel):
     sorted_by: SortBy = SortBy.timestamp
     sort_order: SortOrder = SortOrder.descending
     max_results: int = 0
+
+    def create_filter_dict(self) -> dict:
+        filter_params: dict = {}
+        if self.book_title:
+            filter_params["title"] = re.compile(self.book_title, re.IGNORECASE)
+
+        if self.author:
+            filter_params["author"] = re.compile(self.author, re.IGNORECASE)
+
+        if self.isbn:
+            filter_params["isbn"] = self.isbn.replace("-", "")
+
+        if self.from_date:
+            # Time() returns (0, 0) -> creates datetime with the date at midnight
+            filter_params["timestamp"] = {
+                "$gte": datetime.combine(self.from_date, time())
+            }
+
+        if self.to_date:
+            filter_params["timestamp"] = {
+                "$lte": datetime.combine(self.to_date, time())
+            }
+
+        if self.available_only:
+            filter_params["available"] = self.available_only
+
+        return filter_params
 
 
 class Query(BaseModel):

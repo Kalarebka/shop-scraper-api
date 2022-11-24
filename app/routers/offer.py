@@ -1,22 +1,20 @@
 from typing import List
 
-from fastapi import APIRouter
-from fastapi import Body
+from fastapi import APIRouter, Body
 
 from app.db_handler import DBHandler
 from app.live_query import request_live_query
 from app.models import Offer, OfferSearch
-
 
 router = APIRouter(prefix="/offer")
 db = DBHandler()
 
 
 @router.get("/")
-async def get_offers(query: str) -> List[dict]:
-    """Searches for result for the query from the last 24 hours.
+async def get_offers(query: str, hours: int = 24) -> List[dict]:
+    """Searches for result for the query from the last <hours> hours.
     If there are none, sends a live query to the scrapers"""
-    results: List[dict] = await db.get_offers(query)
+    results: List[dict] = await db.get_offers(query, hours=hours)
     if results:
         return results
     offers = await request_live_query(query)
